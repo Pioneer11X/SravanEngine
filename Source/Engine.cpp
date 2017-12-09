@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include <iostream>
+#include <vector>
 #include <assert.h>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -41,19 +42,67 @@ Engine::Engine()
 
 int Engine::Run()
 {
-	// Rectangle
 	float vertices[] = {
-		// positions         // colors			// Tex Coords.
-		0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,	1.0f, 0.0f,			// bottom right
-		-0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,	0.0f, 0.0f,			// bottom left
-		0.5f,  0.5f, 0.0f,  0.5f, 0.5f, 1.0f,	1.0f, 1.0f,			// top right
-		-0.5f, 0.5f, 0.0f, 0.5f, 0.5f, 0.0f,	0.0f, 1.0f						// top left
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	};
+	// world space positions of our cubes
+	glm::vec3 cubePositions[] = {
+		glm::vec3(0.0f,  0.0f,  0.0f),
+		glm::vec3(2.0f,  5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f,  3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f,  2.0f, -2.5f),
+		glm::vec3(1.5f,  0.2f, -1.5f),
+		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
-	unsigned int indices[] = {
-		0, 1, 2,
-		2, 1, 3
-	};
+	std::vector<unsigned int> indices(36);
+	for (unsigned int i = 0; i < 36; i++) {
+		indices[i] = i;
+	}
 
 	/* Texture Loading Stuff */
 
@@ -118,16 +167,13 @@ int Engine::Run()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
 
 	coreShader->use();
 	glUniform1i(glGetUniformLocation(this->coreShader->ID, "texture1"), 0);
@@ -138,12 +184,15 @@ int Engine::Run()
 
 		/*Timed Update Stuff*/
 
-		glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
-		glm::mat4 trans(1.0);
-		trans = glm::translate(trans, glm::vec3( glm::sin(glfwGetTime()) , -0.5f, 0.0f));
-		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-		vec = trans * vec;
-		std::cout << vec.x << vec.y << vec.z << std::endl;
+		glm::mat4 model(1.0f);
+		model = glm::translate(model, glm::vec3(glm::sin(glfwGetTime()), 0.0f, 0.0f));
+		model = glm::rotate(model, float(glfwGetTime()) * glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+		glm::mat4 view(1.0f);
+		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+		glm::mat4 projection(1.0f);
+		projection = glm::perspective(glm::radians(45.0f), 800.0f / 600, 0.1f, 100.0f);
 
 		/*Timed Update Stuff ends*/
 
@@ -152,15 +201,14 @@ int Engine::Run()
 
 		/*Render Code Starts*/
 
+		glEnable(GL_DEPTH_TEST);
 		glClearColor(0.2, 0.2, .2, 1.);
-		glClear(GL_COLOR_BUFFER_BIT);
 
-		// update the uniform color
-		float timeValue = glfwGetTime();
-		float greenValue = sin(timeValue) / 2.0f + 0.5f;
-		int vertexColorLocation = glGetUniformLocation(this->coreShader->ID, "ourColour");
-		glUniform4f(vertexColorLocation, 0.5f, greenValue, 0.5f, 1.0f);
-		glUniformMatrix4fv(glGetUniformLocation(this->coreShader->ID, "transform"), 1, GL_FALSE, glm::value_ptr(trans));
+		// Try running the code by not clearing the Depth Buffer.
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glBindVertexArray(VAO);
+		coreShader->use();
 
 		// Be careful when activating Shader. I messed up pretty bad.
 		glActiveTexture(GL_TEXTURE0);
@@ -169,13 +217,31 @@ int Engine::Run()
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 
-		coreShader->use();
-		glBindVertexArray(VAO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		glUniformMatrix4fv(glGetUniformLocation(this->coreShader->ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(this->coreShader->ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+		for (uint16_t i = 0; i < 10; i++) {
+			glm::mat4 model(1.0);
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 20.0f * i;
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			coreShader->setMat4("model", model);
+
+			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+		}
+
+
+		
+		// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		// glUniform1i(glGetUniformLocation(this->coreShader->ID, "ourTexture"), 0);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		
+		// glDrawArrays(GL_TRIANGLES, 0, 36);
+		// glDrawElements(GL_TRIANGLE_STRIP, 14, GL_UNSIGNED_INT, 0);
 
 		/*Render Code Ends*/
+
+
 
 		// Swap the Buffers.
 		glfwSwapBuffers(window);

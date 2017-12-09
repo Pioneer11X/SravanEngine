@@ -1,5 +1,6 @@
 #include "Shader.h"
 
+
 using namespace std;
 
 Shader::Shader(const GLchar * _vertexPath, const GLchar * _fragmentPath)
@@ -96,6 +97,11 @@ void Shader::setInt(const std::string & _name, int _value) const
 void Shader::setFloat(const std::string & _name, float _value) const
 {
 	glUniform1f(glGetUniformLocation(ID, _name.c_str()), _value);
+}
+
+void Shader::setMat4(const std::string & _name, glm::mat4 _value) const
+{
+	glUniformMatrix4fv(glGetUniformLocation(ID, _name.c_str()), 1, GL_FALSE, &_value[0][0]);
 }
 
 Shader::~Shader()
