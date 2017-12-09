@@ -6,9 +6,11 @@ layout (location = 2) in vec2 uv;	// Attrib 2
 out vec3 vertexColour;
 out vec2 vertexUv;
 
+uniform mat4 transform;
+
 void main(){
 	
-	gl_Position = vec4(pos, 1.0);
+	gl_Position = transform * vec4(pos, 1.0);
 	vertexColour = colour;
 	vertexUv = uv;
 

@@ -135,6 +135,18 @@ int Engine::Run()
 
 	while (!glfwWindowShouldClose(window))
 	{
+
+		/*Timed Update Stuff*/
+
+		glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
+		glm::mat4 trans(1.0);
+		trans = glm::translate(trans, glm::vec3( glm::sin(glfwGetTime()) , -0.5f, 0.0f));
+		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+		vec = trans * vec;
+		std::cout << vec.x << vec.y << vec.z << std::endl;
+
+		/*Timed Update Stuff ends*/
+
 		// Process the Input.
 		this->ProcessInput();
 
@@ -148,6 +160,7 @@ int Engine::Run()
 		float greenValue = sin(timeValue) / 2.0f + 0.5f;
 		int vertexColorLocation = glGetUniformLocation(this->coreShader->ID, "ourColour");
 		glUniform4f(vertexColorLocation, 0.5f, greenValue, 0.5f, 1.0f);
+		glUniformMatrix4fv(glGetUniformLocation(this->coreShader->ID, "transform"), 1, GL_FALSE, glm::value_ptr(trans));
 
 		// Be careful when activating Shader. I messed up pretty bad.
 		glActiveTexture(GL_TEXTURE0);
