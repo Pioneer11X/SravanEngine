@@ -4,11 +4,17 @@
 #include <glad\glad.h>
 #include <GLFW\glfw3.h>
 
+#include "Shader.h"
+
+#include <memory>
+
 class Engine
 {
 public:
 
 	GLFWwindow * window;
+
+	Shader * coreShader;
 
 	Engine();
 
