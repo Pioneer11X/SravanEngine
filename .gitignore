@@ -321,3 +321,10 @@ OpenCover/
 
 # Azure Stream Analytics local run output 
 ASALocalRun/
+CMakeFiles/
+*.cmake
+ZERO_CHECK.vcxproj.filters
+SravanEngine.sln
+CMakeCache.txt
+ALL_BUILD.vcxproj.filters
+SravanEngine.vcxproj.filters
