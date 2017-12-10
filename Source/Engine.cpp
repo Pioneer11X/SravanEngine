@@ -11,6 +11,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+
 Engine::Engine()
 {
 
@@ -30,6 +33,10 @@ Engine::Engine()
 
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
+
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	// Check if glad is working with the Window.
 	assert(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress));
@@ -37,6 +44,8 @@ Engine::Engine()
 	glViewport(0, 0, 800, 600);
 
 	coreShader = new Shader("./Source/core.vs", "./Source/core.fs");
+
+	camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 }
 
@@ -184,15 +193,19 @@ int Engine::Run()
 
 		/*Timed Update Stuff*/
 
-		glm::mat4 model(1.0f);
-		model = glm::translate(model, glm::vec3(glm::sin(glfwGetTime()), 0.0f, 0.0f));
-		model = glm::rotate(model, float(glfwGetTime()) * glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		currentFrameTime = glfwGetTime();
+		deltaTime = currentFrameTime - lastFrameTime;
+		lastFrameTime = currentFrameTime;
 
-		glm::mat4 view(1.0f);
-		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+		this->camera.ProcessMouseMovement(2.0f, 0.0f, true);
 
-		glm::mat4 projection(1.0f);
-		projection = glm::perspective(glm::radians(45.0f), 800.0f / 600, 0.1f, 100.0f);
+		glm::mat4 view = this->camera.GetViewMatrix(); 
+		// glm::lookAt(this->camera.Position, camera.Position + camera.Front, camera.Up);
+
+		glm::mat4 projection = glm::perspective(glm::radians(this->camera.Zoom), 800.0f / 600, 0.1f, 100.0f);
+
+		coreShader->setMat4("view", view);
+		coreShader->setMat4("projection", projection);
 
 		/*Timed Update Stuff ends*/
 
@@ -217,9 +230,6 @@ int Engine::Run()
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 
-		glUniformMatrix4fv(glGetUniformLocation(this->coreShader->ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(glGetUniformLocation(this->coreShader->ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-
 		for (uint16_t i = 0; i < 10; i++) {
 			glm::mat4 model(1.0);
 			model = glm::translate(model, cubePositions[i]);
@@ -231,17 +241,7 @@ int Engine::Run()
 
 		}
 
-
-		
-		// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		// glUniform1i(glGetUniformLocation(this->coreShader->ID, "ourTexture"), 0);
-		
-		// glDrawArrays(GL_TRIANGLES, 0, 36);
-		// glDrawElements(GL_TRIANGLE_STRIP, 14, GL_UNSIGNED_INT, 0);
-
 		/*Render Code Ends*/
-
-
 
 		// Swap the Buffers.
 		glfwSwapBuffers(window);
@@ -260,6 +260,16 @@ void Engine::ProcessInput()
 		glfwSetWindowShouldClose(window, true);
 	}
 
+	float cameraSpeed = 2.5f * deltaTime;
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		camera.ProcessKeyboard(Camera_Movement::FORWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		camera.ProcessKeyboard(Camera_Movement::BACKWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		camera.ProcessKeyboard(Camera_Movement::LEFT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		camera.ProcessKeyboard(Camera_Movement::RIGHT, deltaTime);
+
 }
 
 void Engine::Update()
@@ -269,9 +279,39 @@ void Engine::Update()
 
 }
 
+// glfw: whenever the mouse moves, this callback is called
+// -------------------------------------------------------
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+
+
+	if (Engine::getInstance().firstInput)
+	{
+		Engine::getInstance().lastX = xpos;
+		Engine::getInstance().lastY = ypos;
+		Engine::getInstance().firstInput = false;
+	}
+
+	float xoffset = xpos - Engine::getInstance().lastX;
+	float yoffset = Engine::getInstance().lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+	Engine::getInstance().lastX = xpos;
+	Engine::getInstance().lastY = ypos;
+
+	Engine::getInstance().camera.ProcessMouseMovement(xoffset, yoffset, true);
+
+	std::cout << xpos << " , " << ypos << std::endl;
+}
+
+// glfw: whenever the mouse scroll wheel scrolls, this callback is called
+// ----------------------------------------------------------------------
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	Engine::getInstance().camera.ProcessMouseScroll(yoffset);
+}
+
 
 Engine::~Engine()
 {
 	glfwTerminate();
 }
-

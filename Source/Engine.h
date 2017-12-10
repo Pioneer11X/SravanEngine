@@ -5,22 +5,41 @@
 #include <GLFW\glfw3.h>
 
 #include "Shader.h"
-
+#include "Camera.h"
 #include <memory>
 
-#include <glm\glm.hpp>
-#include <glm\gtc\matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "InputManager.h"
 
 class Engine
 {
+private:
+
+	Engine();
+
 public:
+
+	static Engine& getInstance() {
+		static Engine instance;
+		return instance;
+	};
+
+	// Timing Variables.
+	float deltaTime = 0.0f;
+	float lastFrameTime = 0.0f;
+	float currentFrameTime = 0.0f;
+
+	// Mouse Input Variables.
+	bool firstInput = true;
+	float lastX = 400, lastY = 300; // Set them to center.
+	float sensitivity = 0.05f;
+
+	static InputManager * input;
 
 	GLFWwindow * window;
 
 	Shader * coreShader;
 
-	Engine();
+	Camera camera;
 
 	int Run();
 
