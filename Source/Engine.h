@@ -8,7 +8,6 @@
 #include "Camera.h"
 #include <memory>
 
-#include "InputManager.h"
 
 class Engine
 {
@@ -32,8 +31,6 @@ public:
 	bool firstInput = true;
 	float lastX = 400, lastY = 300; // Set them to center.
 	float sensitivity = 0.05f;
-
-	static InputManager * input;
 
 	GLFWwindow * window;
 

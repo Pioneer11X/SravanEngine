@@ -197,7 +197,7 @@ int Engine::Run()
 		deltaTime = currentFrameTime - lastFrameTime;
 		lastFrameTime = currentFrameTime;
 
-		this->camera.ProcessMouseMovement(2.0f, 0.0f, true);
+		// this->camera.ProcessMouseMovement(2.0f, 0.0f, true);
 
 		glm::mat4 view = this->camera.GetViewMatrix(); 
 		// glm::lookAt(this->camera.Position, camera.Position + camera.Front, camera.Up);
