@@ -45,7 +45,7 @@ Engine::Engine()
 
 	coreShader = new Shader("./Source/core.vs", "./Source/core.fs");
 
-	camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+	camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 }
 
@@ -199,10 +199,10 @@ int Engine::Run()
 
 		// this->camera.ProcessMouseMovement(2.0f, 0.0f, true);
 
-		glm::mat4 view = this->camera.GetViewMatrix(); 
+		glm::mat4 view = this->camera->GetViewMatrix(); 
 		// glm::lookAt(this->camera.Position, camera.Position + camera.Front, camera.Up);
 
-		glm::mat4 projection = glm::perspective(glm::radians(this->camera.Zoom), 800.0f / 600, 0.1f, 100.0f);
+		glm::mat4 projection = glm::perspective(glm::radians(this->camera->Zoom), 800.0f / 600, 0.1f, 100.0f);
 
 		coreShader->setMat4("view", view);
 		coreShader->setMat4("projection", projection);
@@ -262,13 +262,13 @@ void Engine::ProcessInput()
 
 	float cameraSpeed = 2.5f * deltaTime;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera.ProcessKeyboard(Camera_Movement::FORWARD, deltaTime);
+		camera->ProcessKeyboard(Camera_Movement::FORWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera.ProcessKeyboard(Camera_Movement::BACKWARD, deltaTime);
+		camera->ProcessKeyboard(Camera_Movement::BACKWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera.ProcessKeyboard(Camera_Movement::LEFT, deltaTime);
+		camera->ProcessKeyboard(Camera_Movement::LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera.ProcessKeyboard(Camera_Movement::RIGHT, deltaTime);
+		camera->ProcessKeyboard(Camera_Movement::RIGHT, deltaTime);
 
 }
 
@@ -298,7 +298,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	Engine::getInstance().lastX = xpos;
 	Engine::getInstance().lastY = ypos;
 
-	Engine::getInstance().camera.ProcessMouseMovement(xoffset, yoffset, true);
+	Engine::getInstance().camera->ProcessMouseMovement(xoffset, yoffset, true);
 
 	std::cout << xpos << " , " << ypos << std::endl;
 }
@@ -307,7 +307,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	Engine::getInstance().camera.ProcessMouseScroll(yoffset);
+	Engine::getInstance().camera->ProcessMouseScroll(yoffset);
 }
 
 

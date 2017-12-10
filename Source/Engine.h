@@ -36,7 +36,7 @@ public:
 
 	Shader * coreShader;
 
-	Camera camera;
+	Camera * camera;
 
 	int Run();
 
