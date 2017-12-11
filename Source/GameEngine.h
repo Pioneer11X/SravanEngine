@@ -15,7 +15,7 @@ public:
 	Shader * coreShader;
 	Shader * lightShader;
 
-	std::vector<Material *> materials = std::vector<Material *>(3);
+	std::vector<Material *> materials = std::vector<Material *>(7);
 
 	Material * selectedMaterial = materials[0];
 
