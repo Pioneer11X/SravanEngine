@@ -3,8 +3,7 @@
 #include <vector>
 #include <assert.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -45,155 +44,15 @@ Engine::Engine()
 
 	glViewport(0, 0, 800, 600);
 
-	coreShader = new Shader("./Source/lighting.vs", "./Source/lighting.frag");
-	lightShader = new Shader("./Source/light.vs", "./Source/light.frag");
+	engine = new GameEngine();
 
-	camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+	GUI::getInstance().engine = engine;
 
 }
 
 int Engine::Run()
 {
-	float vertices[] = {
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-
-		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-		0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
-	};
-
-	glm::vec3 lightPos(-1.3f, 2.0f, -2.5f);
-
-	// world space positions of our cubes
-	glm::vec3 cubePositions[] = {
-		glm::vec3(0.0f,  0.0f,  0.0f),
-		glm::vec3(2.0f,  5.0f, -15.0f),
-		glm::vec3(-1.5f, -2.2f, -2.5f),
-		glm::vec3(-3.8f, -2.0f, -12.3f),
-		glm::vec3(2.4f, -0.4f, -3.5f),
-		glm::vec3(-1.7f,  3.0f, -7.5f),
-		glm::vec3(1.3f, -2.0f, -2.5f),
-		glm::vec3(1.5f,  2.0f, -2.5f),
-		// glm::vec3(1.5f,  0.2f, -1.5f),
-		glm::vec3(-1.3f,  1.0f, -1.5f)
-	};
-
-	std::vector<unsigned int> indices(36);
-	for (unsigned int i = 0; i < 36; i++) {
-		indices[i] = i;
-	}
-
-	/* Texture Loading Stuff */
-
-	int width, height, nrChannels;
-	unsigned char * data = stbi_load("./Assets/Images/wall.jpg", &width, &height, &nrChannels, 0);
-
-	assert(NULL != data);
-
-	unsigned int texture1, texture2;
-	glGenTextures(1, &texture1);
-	glBindTexture(GL_TEXTURE_2D, texture1);
-
-	// set the texture wrapping/filtering options (on the currently bound texture object)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// load and generate the texture
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-
-
-	stbi_image_free(data);
-
-	data = stbi_load("./Assets/Images/container.jpg", &width, &height, &nrChannels, 0);
-
-	assert(NULL != data);
-
-	glGenTextures(1, &texture2);
-	glBindTexture(GL_TEXTURE_2D, texture2);
-
-	// set the texture wrapping/filtering options (on the currently bound texture object)
-
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
-	// load and generate the texture
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-	stbi_image_free(data);
-
-	/* Texture Loading Stuff Ends */
-
-	// first, configure the cube's VAO (and VBO)
-	unsigned int VBO, cubeVAO;
-	glGenVertexArrays(1, &cubeVAO);
-	glGenBuffers(1, &VBO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glBindVertexArray(cubeVAO);
-
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	// normal attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-
-	// second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
-	unsigned int lightVAO;
-	glGenVertexArrays(1, &lightVAO);
-	glBindVertexArray(lightVAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	// note that we update the lamp's position attribute's stride to reflect the updated buffer data
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -204,9 +63,8 @@ int Engine::Run()
 		deltaTime = currentFrameTime - lastFrameTime;
 		lastFrameTime = currentFrameTime;
 
-		lightPos.x = glm::sin(lastFrameTime) * 2.0f;
-		lightPos.z = glm::cos(lastFrameTime) * 2.0f;
-
+		engine->Update(deltaTime);
+	
 		/*Timed Update Stuff ends*/
 
 		// Process the Input.
@@ -214,62 +72,7 @@ int Engine::Run()
 
 		GUI::getInstance().Run();
 
-		/*Render Code Starts*/
-
-		glEnable(GL_DEPTH_TEST);
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-		// Try running the code by not clearing the Depth Buffer.
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		// be sure to activate shader when setting uniforms/drawing objects
-		coreShader->use();
-		coreShader->setVec3("viewPos", this->camera->Position);
-
-		// light properties
-		glm::vec3 lightColor(1.f, 1.f, 1.f);
-		//lightColor.x = sin(glfwGetTime() / 2.0f);
-		//lightColor.y = sin(glfwGetTime() / 0.7f);
-		//lightColor.z = sin(glfwGetTime() / 1.3f);
-		glm::vec3 diffuseColor = lightColor   * glm::vec3(1.f); // decrease the influence
-		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.4f); // low influence
-		coreShader->setVec3("light.ambient", ambientColor);
-		coreShader->setVec3("light.diffuse", diffuseColor);
-		coreShader->setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-		coreShader->setVec3("light.position", lightPos);
-
-		// material properties
-		coreShader->setVec3("material.ambient", glm::vec3(0.0215, 0.1745, 0.0215));
-		coreShader->setVec3("material.diffuse", glm::vec3(0.07568, 0.61424, 0.07568));
-		coreShader->setVec3("material.specular",glm::vec3(0.633, 0.727811, 0.633)); // specular lighting doesn't have full effect on this object's material
-		coreShader->setFloat("material.shininess", 0.6 * 128.0);
-
-		// view/projection transformations
-		glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)800 / (float)600, 0.1f, 100.0f);
-		glm::mat4 view = camera->GetViewMatrix();
-		coreShader->setMat4("projection", projection);
-		coreShader->setMat4("view", view);
-
-		// world transformation
-		glm::mat4 model(1.0);
-		coreShader->setMat4("model", model);
-
-		// render the cube
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-
-		// also draw the lamp object
-		lightShader->use();
-		lightShader->setMat4("projection", projection);
-		lightShader->setMat4("view", view);
-		model = glm::mat4(1.0);
-		model = glm::translate(model, lightPos);
-		model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
-		lightShader->setMat4("model", model);
-
-		glBindVertexArray(lightVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		engine->Render();
 
 		GUI::getInstance().Render();
 
@@ -294,13 +97,13 @@ void Engine::ProcessInput()
 
 	float cameraSpeed = 2.5f * deltaTime;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera->ProcessKeyboard(Camera_Movement::FORWARD, deltaTime);
+		engine->camera->ProcessKeyboard(Camera_Movement::FORWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera->ProcessKeyboard(Camera_Movement::BACKWARD, deltaTime);
+		engine->camera->ProcessKeyboard(Camera_Movement::BACKWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera->ProcessKeyboard(Camera_Movement::LEFT, deltaTime);
+		engine->camera->ProcessKeyboard(Camera_Movement::LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera->ProcessKeyboard(Camera_Movement::RIGHT, deltaTime);
+		engine->camera->ProcessKeyboard(Camera_Movement::RIGHT, deltaTime);
 
 }
 
@@ -330,7 +133,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	Engine::getInstance().lastX = xpos;
 	Engine::getInstance().lastY = ypos;
 
-	Engine::getInstance().camera->ProcessMouseMovement(xoffset, yoffset, true);
+	Engine::getInstance().engine->camera->ProcessMouseMovement(xoffset, yoffset, true);
 
 	// std::cout << xpos << " , " << ypos << std::endl;
 }
@@ -339,7 +142,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	Engine::getInstance().camera->ProcessMouseScroll(yoffset);
+	Engine::getInstance().engine->camera->ProcessMouseScroll(yoffset);
 }
 
 
