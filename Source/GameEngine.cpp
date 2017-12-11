@@ -12,9 +12,6 @@ void GameEngine::Update(float _deltaTime)
 	lightPos.x = glm::sin(lastFrameTime) * 2.0f;
 	lightPos.z = glm::cos(lastFrameTime) * 2.0f;
 
-
-
-
 }
 
 void GameEngine::Render()
@@ -45,10 +42,9 @@ void GameEngine::Render()
 	coreShader->setVec3("light.position", lightPos);
 
 	// material properties
-	coreShader->setVec3("material.ambient", selectedMaterial->ambient);
-	coreShader->setVec3("material.diffuse", selectedMaterial->diffuse);
 	coreShader->setVec3("material.specular", selectedMaterial->specular); // specular lighting doesn't have full effect on this object's material
 	coreShader->setFloat("material.shininess", selectedMaterial->shininess);
+	coreShader->setInt("material.diffuse", 0);
 
 	// view/projection transformations
 	glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)800 / (float)600, 0.1f, 100.0f);
@@ -84,13 +80,13 @@ GameEngine::GameEngine()
 	coreShader = new Shader("./Source/lighting.vs", "./Source/lighting.frag");
 	lightShader = new Shader("./Source/light.vs", "./Source/light.frag");
 
-	camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+	camera = new Camera(glm::vec3(0.0f, 1.5f, 3.0f));
 
 	for (unsigned int i = 0; i < 36; i++) {
 		this->indices[i] = i;
 	}
 
-	unsigned char * data = stbi_load("./Assets/Images/wall.jpg", &width, &height, &nrChannels, 0);
+	unsigned char * data = stbi_load("./Assets/Images/container2.png", &width, &height, &nrChannels, 0);
 
 	assert(NULL != data);
 
@@ -112,26 +108,26 @@ GameEngine::GameEngine()
 
 	stbi_image_free(data);
 
-	data = stbi_load("./Assets/Images/container.jpg", &width, &height, &nrChannels, 0);
+	//data = stbi_load("./Assets/Images/container.jpg", &width, &height, &nrChannels, 0);
 
-	assert(NULL != data);
+	//assert(NULL != data);
 
-	glGenTextures(1, &texture2);
-	glBindTexture(GL_TEXTURE_2D, texture2);
+	//glGenTextures(1, &texture2);
+	//glBindTexture(GL_TEXTURE_2D, texture2);
 
-	// set the texture wrapping/filtering options (on the currently bound texture object)
+	//// set the texture wrapping/filtering options (on the currently bound texture object)
 
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	////glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	////glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	////glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	////glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	// load and generate the texture
+	//// load and generate the texture
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-	glGenerateMipmap(GL_TEXTURE_2D);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	//glGenerateMipmap(GL_TEXTURE_2D);
 
-	stbi_image_free(data);
+	//stbi_image_free(data);
 
 	/* Texture Loading Stuff Ends */
 
@@ -145,11 +141,14 @@ GameEngine::GameEngine()
 	glBindVertexArray(cubeVAO);
 
 	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	// normal attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+	// Texture Attribute.
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 
 
 	// second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
@@ -158,7 +157,7 @@ GameEngine::GameEngine()
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	// note that we update the lamp's position attribute's stride to reflect the updated buffer data
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
 	materials[0] = new Material("Emerald", glm::vec3(0.0215, 0.1745, 0.0215), glm::vec3(0.07568, 0.61424, 0.07568), glm::vec3(0.633, 0.727811, 0.633), 0.6);
