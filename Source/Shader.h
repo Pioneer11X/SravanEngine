@@ -27,6 +27,7 @@ public:
 	void setBool(const std::string &_name, bool _value) const;
 	void setInt(const std::string &_name, int _value) const;
 	void setFloat(const std::string &_name, float _value) const;
+	void setVec3(const std::string &_name, glm::vec3 _value) const;
 	void setMat4(const std::string &_name, glm::mat4 _value) const;
 
 	~Shader();

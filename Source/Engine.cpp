@@ -43,7 +43,8 @@ Engine::Engine()
 
 	glViewport(0, 0, 800, 600);
 
-	coreShader = new Shader("./Source/core.vs", "./Source/core.fs");
+	coreShader = new Shader("./Source/lighting.vs", "./Source/lighting.fs");
+	lightShader = new Shader("./Source/light.vs", "./Source/light.fs");
 
 	camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
@@ -52,48 +53,51 @@ Engine::Engine()
 int Engine::Run()
 {
 	float vertices[] = {
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-		0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
 
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
-		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
 	};
+
+	glm::vec3 lightPos(-1.3f, 2.0f, -2.5f);
+
 	// world space positions of our cubes
 	glm::vec3 cubePositions[] = {
 		glm::vec3(0.0f,  0.0f,  0.0f),
@@ -104,7 +108,7 @@ int Engine::Run()
 		glm::vec3(-1.7f,  3.0f, -7.5f),
 		glm::vec3(1.3f, -2.0f, -2.5f),
 		glm::vec3(1.5f,  2.0f, -2.5f),
-		glm::vec3(1.5f,  0.2f, -1.5f),
+		// glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
@@ -161,32 +165,33 @@ int Engine::Run()
 
 	/* Texture Loading Stuff Ends */
 
-	unsigned int VBO;
+	// first, configure the cube's VAO (and VBO)
+	unsigned int VBO, cubeVAO;
+	glGenVertexArrays(1, &cubeVAO);
 	glGenBuffers(1, &VBO);
-
-	unsigned int EBO;
-	glGenBuffers(1, &EBO);
-
-	unsigned int VAO;
-	glGenVertexArrays(1, &VAO);
-
-	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+	glBindVertexArray(cubeVAO);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	// normal attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
-	coreShader->use();
-	glUniform1i(glGetUniformLocation(this->coreShader->ID, "texture1"), 0);
-	glUniform1i(glGetUniformLocation(this->coreShader->ID, "texture2"), 1);
+
+	// second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
+	unsigned int lightVAO;
+	glGenVertexArrays(1, &lightVAO);
+	glBindVertexArray(lightVAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	// note that we update the lamp's position attribute's stride to reflect the updated buffer data
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -197,20 +202,14 @@ int Engine::Run()
 		deltaTime = currentFrameTime - lastFrameTime;
 		lastFrameTime = currentFrameTime;
 
-		// this->camera.ProcessMouseMovement(2.0f, 0.0f, true);
-
-		glm::mat4 view = this->camera->GetViewMatrix(); 
-		// glm::lookAt(this->camera.Position, camera.Position + camera.Front, camera.Up);
-
-		glm::mat4 projection = glm::perspective(glm::radians(this->camera->Zoom), 800.0f / 600, 0.1f, 100.0f);
-
-		coreShader->setMat4("view", view);
-		coreShader->setMat4("projection", projection);
+		lightPos.x = glm::sin(lastFrameTime) * 2.0f;
+		lightPos.z = glm::cos(lastFrameTime) * 2.0f;
 
 		/*Timed Update Stuff ends*/
 
 		// Process the Input.
 		this->ProcessInput();
+
 
 		/*Render Code Starts*/
 
@@ -220,26 +219,40 @@ int Engine::Run()
 		// Try running the code by not clearing the Depth Buffer.
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glBindVertexArray(VAO);
+		// be sure to activate shader when setting uniforms/drawing objects
 		coreShader->use();
+		coreShader->setVec3("objectColour", glm::vec3(1.0f, 0.5f, 0.31f));
+		coreShader->setVec3("lightColour", glm::vec3(1.0f, 1.0f, 1.0f));
+		coreShader->setVec3("lightPos", lightPos);
+		coreShader->setVec3("viewPos", this->camera->Position);
 
-		// Be careful when activating Shader. I messed up pretty bad.
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture1);
+		// view/projection transformations
+		glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)800 / (float)600, 0.1f, 100.0f);
+		glm::mat4 view = camera->GetViewMatrix();
+		coreShader->setMat4("projection", projection);
+		coreShader->setMat4("view", view);
 
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture2);
+		// world transformation
+		glm::mat4 model(1.0);
+		coreShader->setMat4("model", model);
 
-		for (uint16_t i = 0; i < 10; i++) {
-			glm::mat4 model(1.0);
-			model = glm::translate(model, cubePositions[i]);
-			float angle = 20.0f * i;
-			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-			coreShader->setMat4("model", model);
+		// render the cube
+		glBindVertexArray(cubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
-		}
+		// also draw the lamp object
+		lightShader->use();
+		lightShader->setMat4("projection", projection);
+		lightShader->setMat4("view", view);
+		model = glm::mat4(1.0);
+		model = glm::translate(model, lightPos);
+		model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
+		lightShader->setMat4("model", model);
+
+		glBindVertexArray(lightVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
 
 		/*Render Code Ends*/
 
@@ -300,7 +313,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 	Engine::getInstance().camera->ProcessMouseMovement(xoffset, yoffset, true);
 
-	std::cout << xpos << " , " << ypos << std::endl;
+	// std::cout << xpos << " , " << ypos << std::endl;
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called

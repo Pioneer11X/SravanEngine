@@ -17,6 +17,10 @@ private:
 
 public:
 
+	glm::vec3 lightColour = glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 toyColour = glm::vec3(1.0f, 0.5f, 0.31f);
+	glm::vec3 result = lightColour * toyColour;
+
 	static Engine& getInstance() {
 		static Engine instance;
 		return instance;
@@ -35,6 +39,7 @@ public:
 	GLFWwindow * window;
 
 	Shader * coreShader;
+	Shader * lightShader;
 
 	Camera * camera;
 
