@@ -44,7 +44,6 @@ void GameEngine::Render()
 	// material properties
 	coreShader->setVec3("material.specular", selectedMaterial->specular); // specular lighting doesn't have full effect on this object's material
 	coreShader->setFloat("material.shininess", selectedMaterial->shininess);
-	coreShader->setInt("material.diffuse", 0);
 
 	// view/projection transformations
 	glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)800 / (float)600, 0.1f, 100.0f);
@@ -55,6 +54,9 @@ void GameEngine::Render()
 	// world transformation
 	glm::mat4 model(1.0);
 	coreShader->setMat4("model", model);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture1);
 
 	// render the cube
 	glBindVertexArray(cubeVAO);
@@ -90,44 +92,36 @@ GameEngine::GameEngine()
 
 	assert(NULL != data);
 
-	unsigned int texture1, texture2;
+	GLenum format;
+	switch (nrChannels)
+	{
+	case 1:
+		format = GL_RED;
+	case 3:
+		format = GL_RGB;
+	case 4:
+		format = GL_RGBA;
+	default:
+		format = GL_RGB;
+		break;
+	}
+	format = GL_RGBA;
+
 	glGenTextures(1, &texture1);
+	
 	glBindTexture(GL_TEXTURE_2D, texture1);
+
+	// load and generate the texture
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+	glGenerateMipmap(GL_TEXTURE_2D);
 
 	// set the texture wrapping/filtering options (on the currently bound texture object)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// load and generate the texture
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-
 
 	stbi_image_free(data);
-
-	//data = stbi_load("./Assets/Images/container.jpg", &width, &height, &nrChannels, 0);
-
-	//assert(NULL != data);
-
-	//glGenTextures(1, &texture2);
-	//glBindTexture(GL_TEXTURE_2D, texture2);
-
-	//// set the texture wrapping/filtering options (on the currently bound texture object)
-
-	////glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	////glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	////glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	////glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	//// load and generate the texture
-
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-	//glGenerateMipmap(GL_TEXTURE_2D);
-
-	//stbi_image_free(data);
 
 	/* Texture Loading Stuff Ends */
 
@@ -150,7 +144,6 @@ GameEngine::GameEngine()
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
-
 	// second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
 	glGenVertexArrays(1, &lightVAO);
 	glBindVertexArray(lightVAO);
@@ -170,6 +163,9 @@ GameEngine::GameEngine()
 
 
 	selectedMaterial = materials[0];
+
+	coreShader->use();
+	coreShader->setInt("material.diffuse", 0);
 
 }
 
