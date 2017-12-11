@@ -43,8 +43,8 @@ Engine::Engine()
 
 	glViewport(0, 0, 800, 600);
 
-	coreShader = new Shader("./Source/lighting.vs", "./Source/lighting.fs");
-	lightShader = new Shader("./Source/light.vs", "./Source/light.fs");
+	coreShader = new Shader("./Source/lighting.vs", "./Source/lighting.frag");
+	lightShader = new Shader("./Source/light.vs", "./Source/light.frag");
 
 	camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
@@ -214,17 +214,32 @@ int Engine::Run()
 		/*Render Code Starts*/
 
 		glEnable(GL_DEPTH_TEST);
-		glClearColor(0.2, 0.2, .2, 1.);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 		// Try running the code by not clearing the Depth Buffer.
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// be sure to activate shader when setting uniforms/drawing objects
 		coreShader->use();
-		coreShader->setVec3("objectColour", glm::vec3(1.0f, 0.5f, 0.31f));
-		coreShader->setVec3("lightColour", glm::vec3(1.0f, 1.0f, 1.0f));
-		coreShader->setVec3("lightPos", lightPos);
 		coreShader->setVec3("viewPos", this->camera->Position);
+
+		// light properties
+		glm::vec3 lightColor(1.f, 1.f, 1.f);
+		//lightColor.x = sin(glfwGetTime() / 2.0f);
+		//lightColor.y = sin(glfwGetTime() / 0.7f);
+		//lightColor.z = sin(glfwGetTime() / 1.3f);
+		glm::vec3 diffuseColor = lightColor   * glm::vec3(1.f); // decrease the influence
+		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.4f); // low influence
+		coreShader->setVec3("light.ambient", ambientColor);
+		coreShader->setVec3("light.diffuse", diffuseColor);
+		coreShader->setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+		coreShader->setVec3("light.position", lightPos);
+
+		// material properties
+		coreShader->setVec3("material.ambient", glm::vec3(0.0215, 0.1745, 0.0215));
+		coreShader->setVec3("material.diffuse", glm::vec3(0.07568, 0.61424, 0.07568));
+		coreShader->setVec3("material.specular",glm::vec3(0.633, 0.727811, 0.633)); // specular lighting doesn't have full effect on this object's material
+		coreShader->setFloat("material.shininess", 0.6 * 128.0);
 
 		// view/projection transformations
 		glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)800 / (float)600, 0.1f, 100.0f);
