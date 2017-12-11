@@ -2,12 +2,11 @@
 
 // Always include Glad before GLFW
 #include <glad\glad.h>
-#include <GLFW\glfw3.h>
 
 #include "Shader.h"
 #include "Camera.h"
 #include <memory>
-
+#include "Gui.h"
 
 class Engine
 {

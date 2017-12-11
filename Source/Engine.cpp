@@ -31,6 +31,8 @@ Engine::Engine()
 		assert(NULL != window);
 	}
 
+	GUI::getInstance().window = window;
+
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
@@ -210,6 +212,7 @@ int Engine::Run()
 		// Process the Input.
 		this->ProcessInput();
 
+		GUI::getInstance().Run();
 
 		/*Render Code Starts*/
 
@@ -268,6 +271,7 @@ int Engine::Run()
 		glBindVertexArray(lightVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
+		GUI::getInstance().Render();
 
 		/*Render Code Ends*/
 
