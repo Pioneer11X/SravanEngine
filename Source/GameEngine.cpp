@@ -39,7 +39,7 @@ void GameEngine::Render()
 	coreShader->setVec3("light.ambient", ambientColor);
 	coreShader->setVec3("light.diffuse", diffuseColor);
 	coreShader->setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-	coreShader->setVec3("light.position", lightPos);
+	coreShader->setVec3("light.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
 
 	// material properties
 	coreShader->setVec3("material.specular", selectedMaterial->specular); // specular lighting doesn't have full effect on this object's material
@@ -51,26 +51,30 @@ void GameEngine::Render()
 	coreShader->setMat4("projection", projection);
 	coreShader->setMat4("view", view);
 
-	// world transformation
-	glm::mat4 model(1.0);
-	coreShader->setMat4("model", model);
-
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture1);
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, texture2);
 
-	// render the cube
-	glBindVertexArray(cubeVAO);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	for (unsigned int i = 0; i < 10; i++) {
+		glm::mat4 model(1.0);
+		model = glm::translate(model, cubePositions[i]);
+		float angle = 20.0f * i;
+		model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+		coreShader->setMat4("model", model);
+
+		// render the cube
+		glBindVertexArray(cubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+	}
 
 
 	// also draw the lamp object
 	lightShader->use();
 	lightShader->setMat4("projection", projection);
 	lightShader->setMat4("view", view);
-	model = glm::mat4(1.0);
+	glm::mat4 model = glm::mat4(1.0);
 	model = glm::translate(model, lightPos);
 	model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
 	lightShader->setMat4("model", model);
