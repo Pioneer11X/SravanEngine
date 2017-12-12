@@ -26,8 +26,10 @@ void GameEngine::Render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// be sure to activate shader when setting uniforms/drawing objects
-	coreShader->use();
-	coreShader->setVec3("viewPos", this->camera->Position);
+	//coreShader->use();
+	//coreShader->setVec3("viewPos", this->camera->Position);
+	pointLightingShader->use();
+	pointLightingShader->setVec3("viewPos", this->camera->Position);
 
 	// light properties
 	glm::vec3 lightColor(1.f, 1.f, 1.f);
@@ -36,20 +38,33 @@ void GameEngine::Render()
 	//lightColor.z = sin(glfwGetTime() / 1.3f);
 	glm::vec3 diffuseColor = lightColor   * glm::vec3(1.f); // decrease the influence
 	glm::vec3 ambientColor = diffuseColor * glm::vec3(0.4f); // low influence
-	coreShader->setVec3("light.ambient", ambientColor);
-	coreShader->setVec3("light.diffuse", diffuseColor);
-	coreShader->setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-	coreShader->setVec3("light.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
+	//coreShader->setVec3("light.ambient", ambientColor);
+	//coreShader->setVec3("light.diffuse", diffuseColor);
+	//coreShader->setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+	//coreShader->setVec3("light.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
+	pointLightingShader->setVec3("light.position", lightPos);
+	pointLightingShader->setVec3("light.ambient", ambientColor);
+	pointLightingShader->setVec3("light.diffuse", diffuseColor);
+	pointLightingShader->setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+	pointLightingShader->setFloat("light.constant", 1.0f);
+	pointLightingShader->setFloat("light.linearConstant", 0.09f);
+	pointLightingShader->setFloat("light.quadraticConstant", 0.032f);
+
+
 
 	// material properties
-	coreShader->setVec3("material.specular", selectedMaterial->specular); // specular lighting doesn't have full effect on this object's material
-	coreShader->setFloat("material.shininess", selectedMaterial->shininess);
+	//coreShader->setVec3("material.specular", selectedMaterial->specular); // specular lighting doesn't have full effect on this object's material
+	//coreShader->setFloat("material.shininess", selectedMaterial->shininess);
+	pointLightingShader->setVec3("material.specular", selectedMaterial->specular); // specular lighting doesn't have full effect on this object's material
+	pointLightingShader->setFloat("material.shininess", selectedMaterial->shininess);
 
 	// view/projection transformations
 	glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)800 / (float)600, 0.1f, 100.0f);
 	glm::mat4 view = camera->GetViewMatrix();
-	coreShader->setMat4("projection", projection);
-	coreShader->setMat4("view", view);
+	//coreShader->setMat4("projection", projection);
+	//coreShader->setMat4("view", view);
+	pointLightingShader->setMat4("projection", projection);
+	pointLightingShader->setMat4("view", view);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture1);
@@ -62,7 +77,7 @@ void GameEngine::Render()
 		model = glm::translate(model, cubePositions[i]);
 		float angle = 20.0f * i;
 		model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-		coreShader->setMat4("model", model);
+		pointLightingShader->setMat4("model", model);
 
 		// render the cube
 		glBindVertexArray(cubeVAO);
@@ -88,6 +103,7 @@ GameEngine::GameEngine()
 {
 	coreShader = new Shader("./Source/lighting.vs", "./Source/lighting.frag");
 	lightShader = new Shader("./Source/light.vs", "./Source/light.frag");
+	pointLightingShader = new Shader("./Source/pointLighting.vs", "./Source/pointLighting.frag");
 
 	camera = new Camera(glm::vec3(0.0f, 1.5f, 3.0f));
 
@@ -202,9 +218,12 @@ GameEngine::GameEngine()
 
 	selectedMaterial = materials[0];
 
-	coreShader->use();
-	coreShader->setInt("material.diffuse", 0);
-	coreShader->setInt("material.specular", 1);
+	//coreShader->use();
+	//coreShader->setInt("material.diffuse", 0);
+	//coreShader->setInt("material.specular", 1);
+	pointLightingShader->use();
+	pointLightingShader->setInt("material.diffuse", 0);
+	pointLightingShader->setInt("material.specular", 1);
 
 }
 

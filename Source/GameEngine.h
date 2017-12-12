@@ -13,6 +13,7 @@ class GameEngine
 public:
 
 	Shader * coreShader;
+	Shader * pointLightingShader;
 	Shader * lightShader;
 
 	std::vector<Material *> materials = std::vector<Material *>(7);

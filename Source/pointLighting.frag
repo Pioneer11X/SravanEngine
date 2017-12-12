@@ -35,18 +35,22 @@ in vec3 FragPos;
 in vec2 TexCoords;
 
 uniform Material material;
-uniform DirectionalLight light;  
+uniform PointLight light;  
 uniform vec3 viewPos; // This is the Camera Position in World Space.
 
 void main(){
 
-	vec3 lightDir = normalize(-light.direction);
+	float distance = length(light.position - FragPos);
+	float attenuation = 1.0 / (light.constant + light.linearConstant * distance + light.quadraticConstant * (distance * distance));
 
+
+	// Ambient
 	vec3 ambient  = light.ambient * (texture(material.diffuse, TexCoords)).rgb;
 	
 	
 	// Diffuse
 	vec3 norm = normalize(Normal);
+	vec3 lightDir = normalize(light.position - FragPos);
 	float diff = max(dot(norm, lightDir), 0.0);
 	vec3 diffuse = light.diffuse * diff * ((texture(material.diffuse, TexCoords)).rgb);
 
@@ -57,6 +61,9 @@ void main(){
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
 	vec3 specular = light.specular * spec * texture(material.specular, TexCoords).rgb;
 
+	ambient *= attenuation;
+	diffuse *= attenuation;
+	specular *= attenuation;
 
 	vec3 result = (ambient + diffuse + specular);
 	FragColour = vec4(result , 1.0f);
