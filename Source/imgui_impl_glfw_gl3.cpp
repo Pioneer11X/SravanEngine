@@ -382,37 +382,37 @@ void ImGui_ImplGlfwGL3_NewFrame()
     g_Time = current_time;
 
     // Setup inputs
-    // (we already got mouse wheel, keyboard keys & characters from glfw callbacks polled in glfwPollEvents())
-    if (glfwGetWindowAttrib(g_Window, GLFW_FOCUSED))
-    {
-        if (io.WantMoveMouse)
-        {
-            glfwSetCursorPos(g_Window, (double)io.MousePos.x, (double)io.MousePos.y);   // Set mouse position if requested by io.WantMoveMouse flag (used when io.NavMovesTrue is enabled by user and using directional navigation)
-        }
-        else
-        {
-            double mouse_x, mouse_y;
-            glfwGetCursorPos(g_Window, &mouse_x, &mouse_y);
-            io.MousePos = ImVec2((float)mouse_x, (float)mouse_y);   // Get mouse position in screen coordinates (set to -1,-1 if no mouse / on another screen, etc.)
-        }
-    }
-    else
-    {
-        io.MousePos = ImVec2(-FLT_MAX,-FLT_MAX);
-    }
+	// (we already got mouse wheel, keyboard keys & characters from glfw callbacks polled in glfwPollEvents())
+    //if (glfwGetWindowAttrib(g_Window, GLFW_FOCUSED))
+    //{
+    //    if (io.WantMoveMouse)
+    //    {
+    //        glfwSetCursorPos(g_Window, (double)io.MousePos.x, (double)io.MousePos.y);   // Set mouse position if requested by io.WantMoveMouse flag (used when io.NavMovesTrue is enabled by user and using directional navigation)
+    //    }
+    //    else
+    //    {
+    //        double mouse_x, mouse_y;
+    //        glfwGetCursorPos(g_Window, &mouse_x, &mouse_y);
+    //        io.MousePos = ImVec2((float)mouse_x, (float)mouse_y);   // Get mouse position in screen coordinates (set to -1,-1 if no mouse / on another screen, etc.)
+    //    }
+    //}
+    //else
+    //{
+    //    io.MousePos = ImVec2(-FLT_MAX,-FLT_MAX);
+    //}
 
-    for (int i = 0; i < 3; i++)
-    {
-        // If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
-        io.MouseDown[i] = g_MouseJustPressed[i] || glfwGetMouseButton(g_Window, i) != 0;
-        g_MouseJustPressed[i] = false;
-    }
+    //for (int i = 0; i < 3; i++)
+    //{
+    //    // If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
+    //    io.MouseDown[i] = g_MouseJustPressed[i] || glfwGetMouseButton(g_Window, i) != 0;
+    //    g_MouseJustPressed[i] = false;
+    //}
 
-    io.MouseWheel = g_MouseWheel;
-    g_MouseWheel = 0.0f;
+    //io.MouseWheel = g_MouseWheel;
+    //g_MouseWheel = 0.0f;
 
-    // Hide OS mouse cursor if ImGui is drawing it
-    glfwSetInputMode(g_Window, GLFW_CURSOR, io.MouseDrawCursor ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_NORMAL);
+    //// Hide OS mouse cursor if ImGui is drawing it
+    //glfwSetInputMode(g_Window, GLFW_CURSOR, io.MouseDrawCursor ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_NORMAL);
 
     // Start the frame. This call will update the io.WantCaptureMouse, io.WantCaptureKeyboard flag that you can use to dispatch inputs (or not) to your application.
     ImGui::NewFrame();

@@ -9,8 +9,8 @@ void GameEngine::Update(float _deltaTime)
 
 	lastFrameTime += _deltaTime;
 
-	lightPos.x = glm::sin(lastFrameTime) * 2.0f;
-	lightPos.z = glm::cos(lastFrameTime) * 2.0f;
+	//lightPos.x = glm::sin(lastFrameTime) * 2.0f;
+	//lightPos.z = glm::cos(lastFrameTime) * 2.0f;
 
 }
 
@@ -57,6 +57,9 @@ void GameEngine::Render()
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture1);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, texture2);
 
 	// render the cube
 	glBindVertexArray(cubeVAO);
@@ -123,6 +126,37 @@ GameEngine::GameEngine()
 
 	stbi_image_free(data);
 
+	data = stbi_load("./Assets/Images/container2_specular.png", &width, &height, &nrChannels, 0);
+	assert(NULL != data);
+
+	switch (nrChannels)
+	{
+	case 1:
+		format = GL_RED;
+	case 3:
+		format = GL_RGB;
+	case 4:
+		format = GL_RGBA;
+	default:
+		format = GL_RGB;
+		break;
+	}
+	format = GL_RGBA;
+
+	glGenTextures(1, &texture2);
+
+	glBindTexture(GL_TEXTURE_2D, texture2);
+
+	// load and generate the texture
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	// set the texture wrapping/filtering options (on the currently bound texture object)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
 	/* Texture Loading Stuff Ends */
 
 	// first, configure the cube's VAO (and VBO)
@@ -166,6 +200,7 @@ GameEngine::GameEngine()
 
 	coreShader->use();
 	coreShader->setInt("material.diffuse", 0);
+	coreShader->setInt("material.specular", 1);
 
 }
 
