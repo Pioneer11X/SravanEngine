@@ -15,6 +15,7 @@ public:
 	Shader * coreShader;
 	Shader * pointLightingShader;
 	Shader * lightShader;
+	Shader * spotLightingShader;
 
 	std::vector<Material *> materials = std::vector<Material *>(7);
 

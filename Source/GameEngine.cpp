@@ -28,8 +28,11 @@ void GameEngine::Render()
 	// be sure to activate shader when setting uniforms/drawing objects
 	//coreShader->use();
 	//coreShader->setVec3("viewPos", this->camera->Position);
-	pointLightingShader->use();
-	pointLightingShader->setVec3("viewPos", this->camera->Position);
+
+	/*pointLightingShader->use();
+	pointLightingShader->setVec3("viewPos", this->camera->Position);*/
+
+	spotLightingShader->use();
 
 	// light properties
 	glm::vec3 lightColor(1.f, 1.f, 1.f);
@@ -38,18 +41,26 @@ void GameEngine::Render()
 	//lightColor.z = sin(glfwGetTime() / 1.3f);
 	glm::vec3 diffuseColor = lightColor   * glm::vec3(1.f); // decrease the influence
 	glm::vec3 ambientColor = diffuseColor * glm::vec3(0.4f); // low influence
+
 	//coreShader->setVec3("light.ambient", ambientColor);
 	//coreShader->setVec3("light.diffuse", diffuseColor);
 	//coreShader->setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
 	//coreShader->setVec3("light.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
-	pointLightingShader->setVec3("light.position", lightPos);
-	pointLightingShader->setVec3("light.ambient", ambientColor);
-	pointLightingShader->setVec3("light.diffuse", diffuseColor);
-	pointLightingShader->setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-	pointLightingShader->setFloat("light.constant", 1.0f);
-	pointLightingShader->setFloat("light.linearConstant", 0.09f);
-	pointLightingShader->setFloat("light.quadraticConstant", 0.032f);
 
+	//pointLightingShader->setVec3("light.position", lightPos);
+	//pointLightingShader->setVec3("light.ambient", ambientColor);
+	//pointLightingShader->setVec3("light.diffuse", diffuseColor);
+	//pointLightingShader->setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+	//pointLightingShader->setFloat("light.constant", 1.0f);
+	//pointLightingShader->setFloat("light.linearConstant", 0.09f);
+	//pointLightingShader->setFloat("light.quadraticConstant", 0.032f);
+
+	spotLightingShader->setVec3("light.position", camera->Position);
+	spotLightingShader->setVec3("light.direction", camera->Front);
+	spotLightingShader->setFloat("light.cutoff", glm::cos(glm::radians(12.5f)));
+	spotLightingShader->setVec3("light.ambient", ambientColor);
+	spotLightingShader->setVec3("light.diffuse", diffuseColor);
+	spotLightingShader->setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
 
 
 	// material properties
@@ -104,6 +115,7 @@ GameEngine::GameEngine()
 	coreShader = new Shader("./Source/lighting.vs", "./Source/lighting.frag");
 	lightShader = new Shader("./Source/light.vs", "./Source/light.frag");
 	pointLightingShader = new Shader("./Source/pointLighting.vs", "./Source/pointLighting.frag");
+	spotLightingShader = new Shader("./Source/spotLighting.vs", "./Source/spotLighting.frag");
 
 	camera = new Camera(glm::vec3(0.0f, 1.5f, 3.0f));
 
@@ -221,9 +233,14 @@ GameEngine::GameEngine()
 	//coreShader->use();
 	//coreShader->setInt("material.diffuse", 0);
 	//coreShader->setInt("material.specular", 1);
-	pointLightingShader->use();
-	pointLightingShader->setInt("material.diffuse", 0);
-	pointLightingShader->setInt("material.specular", 1);
+
+	//pointLightingShader->use();
+	//pointLightingShader->setInt("material.diffuse", 0);
+	//pointLightingShader->setInt("material.specular", 1);
+
+	spotLightingShader->use();
+	spotLightingShader->setInt("material.diffuse", 0);
+	spotLightingShader->setInt("material.specular", 1);
 
 }
 
