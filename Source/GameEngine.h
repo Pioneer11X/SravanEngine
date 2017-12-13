@@ -13,7 +13,7 @@ class GameEngine
 public:
 
 	Shader * coreShader;
-	Shader * pointLightingShader;
+	// Shader * pointLightingShader;
 	Shader * lightShader;
 	Shader * spotLightingShader;
 

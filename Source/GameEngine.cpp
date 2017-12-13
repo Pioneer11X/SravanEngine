@@ -58,6 +58,7 @@ void GameEngine::Render()
 	spotLightingShader->setVec3("light.position", camera->Position);
 	spotLightingShader->setVec3("light.direction", camera->Front);
 	spotLightingShader->setFloat("light.cutoff", glm::cos(glm::radians(12.5f)));
+	spotLightingShader->setFloat("light.outerCutoff", glm::cos(glm::radians(17.5f)));
 	spotLightingShader->setVec3("light.ambient", ambientColor);
 	spotLightingShader->setVec3("light.diffuse", diffuseColor);
 	spotLightingShader->setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
@@ -66,16 +67,21 @@ void GameEngine::Render()
 	// material properties
 	//coreShader->setVec3("material.specular", selectedMaterial->specular); // specular lighting doesn't have full effect on this object's material
 	//coreShader->setFloat("material.shininess", selectedMaterial->shininess);
-	pointLightingShader->setVec3("material.specular", selectedMaterial->specular); // specular lighting doesn't have full effect on this object's material
-	pointLightingShader->setFloat("material.shininess", selectedMaterial->shininess);
+	// pointLightingShader->setVec3("material.specular", selectedMaterial->specular); // specular lighting doesn't have full effect on this object's material
+	// pointLightingShader->setFloat("material.shininess", selectedMaterial->shininess);
+
+	spotLightingShader->setVec3("material.specular", selectedMaterial->specular); // specular lighting doesn't have full effect on this object's material
+	spotLightingShader->setFloat("material.shininess", selectedMaterial->shininess);
 
 	// view/projection transformations
 	glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)800 / (float)600, 0.1f, 100.0f);
 	glm::mat4 view = camera->GetViewMatrix();
 	//coreShader->setMat4("projection", projection);
 	//coreShader->setMat4("view", view);
-	pointLightingShader->setMat4("projection", projection);
-	pointLightingShader->setMat4("view", view);
+	/*pointLightingShader->setMat4("projection", projection);
+	pointLightingShader->setMat4("view", view);*/
+	spotLightingShader->setMat4("projection", projection);
+	spotLightingShader->setMat4("view", view);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture1);
@@ -88,7 +94,8 @@ void GameEngine::Render()
 		model = glm::translate(model, cubePositions[i]);
 		float angle = 20.0f * i;
 		model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-		pointLightingShader->setMat4("model", model);
+		// pointLightingShader->setMat4("model", model);
+		spotLightingShader->setMat4("model", model);
 
 		// render the cube
 		glBindVertexArray(cubeVAO);
@@ -114,7 +121,7 @@ GameEngine::GameEngine()
 {
 	coreShader = new Shader("./Source/lighting.vs", "./Source/lighting.frag");
 	lightShader = new Shader("./Source/light.vs", "./Source/light.frag");
-	pointLightingShader = new Shader("./Source/pointLighting.vs", "./Source/pointLighting.frag");
+	// pointLightingShader = new Shader("./Source/pointLighting.vs", "./Source/pointLighting.frag");
 	spotLightingShader = new Shader("./Source/spotLighting.vs", "./Source/spotLighting.frag");
 
 	camera = new Camera(glm::vec3(0.0f, 1.5f, 3.0f));
