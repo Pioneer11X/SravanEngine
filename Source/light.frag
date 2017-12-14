@@ -7,5 +7,6 @@ uniform sampler2D lightImage;
 
 void main(){
     // FragColour = vec4( ((texture(lightImage, TexCoords)).rgb), 1.0);
-	FragColour = texture(lightImage, TexCoords);
+	// FragColour = vec4( texture(lightImage, TexCoords).rgb, 1.0 );
+	FragColour = vec4(texture(lightImage, TexCoords));
 }

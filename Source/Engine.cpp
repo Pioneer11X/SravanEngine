@@ -81,6 +81,8 @@ int Engine::Run()
 		// Swap the Buffers.
 		glfwSwapBuffers(window);
 
+		assert(GL_NO_ERROR == glGetError());
+
 		// Input to the Input Manager???
 		glfwPollEvents();
 	}

@@ -19,11 +19,16 @@ void GameEngine::Render()
 
 	/*Render Code Starts*/
 
-	glEnable(GL_DEPTH_TEST);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	// 
+	
+	// glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// Try running the code by not clearing the Depth Buffer.
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	assert(GL_NO_ERROR == glGetError());
+
+	glEnable(GL_DEPTH_TEST);
 
 	// be sure to activate shader when setting uniforms/drawing objects
 	//coreShader->use();
@@ -70,7 +75,6 @@ void GameEngine::Render()
 	// pointLightingShader->setVec3("material.specular", selectedMaterial->specular); // specular lighting doesn't have full effect on this object's material
 	// pointLightingShader->setFloat("material.shininess", selectedMaterial->shininess);
 
-	spotLightingShader->setVec3("material.specular", selectedMaterial->specular); // specular lighting doesn't have full effect on this object's material
 	spotLightingShader->setFloat("material.shininess", selectedMaterial->shininess);
 
 	// view/projection transformations
@@ -89,6 +93,8 @@ void GameEngine::Render()
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, texture2);
 
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
 	for (unsigned int i = 0; i < 10; i++) {
 		glm::mat4 model(1.0);
 		model = glm::translate(model, cubePositions[i]);
@@ -105,18 +111,20 @@ void GameEngine::Render()
 
 	// also draw the lamp object
 	lightShader->use();
-	glActiveTexture(0);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, lightTexture);
 	lightShader->setMat4("projection", projection);
 	lightShader->setMat4("view", view);
-	lightShader->setInt("lightImage", 0);
 	glm::mat4 model = glm::mat4(1.0);
 	model = glm::translate(model, lightPos);
 	model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
 	lightShader->setMat4("model", model);
 
 	glBindVertexArray(lightVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, lightVBO);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
+
+	assert(GL_NO_ERROR == glGetError());
 
 }
 
@@ -167,6 +175,7 @@ GameEngine::GameEngine()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	stbi_image_free(data);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	data = stbi_load("./Assets/Images/container2_specular.png", &width, &height, &nrChannels, 0);
 	assert(NULL != data);
@@ -199,6 +208,9 @@ GameEngine::GameEngine()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+	stbi_image_free(data);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	data = stbi_load("./Assets/Images/light.png", &width, &height, &nrChannels, 0);
 	assert(NULL != data);
 
@@ -230,7 +242,7 @@ GameEngine::GameEngine()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-
+	stbi_image_free(data);
 
 	/* Texture Loading Stuff Ends */
 
@@ -253,18 +265,21 @@ GameEngine::GameEngine()
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
+	// Light uses a Quad..
+	glGenBuffers(1, &lightVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, lightVBO);
+	glBufferData(GL_ARRAY_BUFFER, 6 * 8 * sizeof(float), vertices, GL_STATIC_DRAW);
+
 	// second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
 	glGenVertexArrays(1, &lightVAO);
 	glBindVertexArray(lightVAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	// note that we update the lamp's position attribute's stride to reflect the updated buffer data
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
 	// Texture Attribute.
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 	materials[0] = new Material("Emerald", glm::vec3(0.0215, 0.1745, 0.0215), glm::vec3(0.07568, 0.61424, 0.07568), glm::vec3(0.633, 0.727811, 0.633), 0.6);
 	materials[1] = new Material("Jade", glm::vec3(0.135, 0.2225, 0.1575), glm::vec3(0.54, 0.89, 0.63), glm::vec3(0.316228, 0.316228, 0.316228), 0.1);
@@ -288,6 +303,9 @@ GameEngine::GameEngine()
 	spotLightingShader->use();
 	spotLightingShader->setInt("material.diffuse", 0);
 	spotLightingShader->setInt("material.specular", 1);
+
+	lightShader->use();
+	lightShader->setInt("lightImage", 0);
 
 }
 

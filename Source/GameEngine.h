@@ -100,7 +100,7 @@ public:
 	/* Texture Loading Stuff */
 	int width, height, nrChannels;
 
-	unsigned int VBO, cubeVAO, lightVAO, texture1, texture2, lightTexture;
+	unsigned int VBO, lightVBO, cubeVAO, lightVAO, texture1, texture2, lightTexture;
 
 	float lastFrameTime = 0;
 

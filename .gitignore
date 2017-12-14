@@ -328,3 +328,5 @@ SravanEngine.sln
 CMakeCache.txt
 ALL_BUILD.vcxproj.filters
 SravanEngine.vcxproj.filters
+*.csv
+*.cfg
