@@ -105,8 +105,11 @@ void GameEngine::Render()
 
 	// also draw the lamp object
 	lightShader->use();
+	glActiveTexture(0);
+	glBindTexture(GL_TEXTURE_2D, lightTexture);
 	lightShader->setMat4("projection", projection);
 	lightShader->setMat4("view", view);
+	lightShader->setInt("lightImage", 0);
 	glm::mat4 model = glm::mat4(1.0);
 	model = glm::translate(model, lightPos);
 	model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
@@ -196,6 +199,39 @@ GameEngine::GameEngine()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+	data = stbi_load("./Assets/Images/light.png", &width, &height, &nrChannels, 0);
+	assert(NULL != data);
+
+	switch (nrChannels)
+	{
+	case 1:
+		format = GL_RED;
+	case 3:
+		format = GL_RGB;
+	case 4:
+		format = GL_RGBA;
+	default:
+		format = GL_RGB;
+		break;
+	}
+	format = GL_RGBA;
+
+	glGenTextures(1, &lightTexture);
+
+	glBindTexture(GL_TEXTURE_2D, lightTexture);
+
+	// load and generate the texture
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	// set the texture wrapping/filtering options (on the currently bound texture object)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+
 	/* Texture Loading Stuff Ends */
 
 	// first, configure the cube's VAO (and VBO)
@@ -225,6 +261,10 @@ GameEngine::GameEngine()
 	// note that we update the lamp's position attribute's stride to reflect the updated buffer data
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+
+	// Texture Attribute.
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 
 	materials[0] = new Material("Emerald", glm::vec3(0.0215, 0.1745, 0.0215), glm::vec3(0.07568, 0.61424, 0.07568), glm::vec3(0.633, 0.727811, 0.633), 0.6);
 	materials[1] = new Material("Jade", glm::vec3(0.135, 0.2225, 0.1575), glm::vec3(0.54, 0.89, 0.63), glm::vec3(0.316228, 0.316228, 0.316228), 0.1);
