@@ -1,5 +1,6 @@
 #include "GUI.h"
 #include <stdio.h>
+#include "leakDetector.h"
 
 GUI::GUI()
 {
@@ -45,4 +46,5 @@ void GUI::Render()
 
 GUI::~GUI()
 {
+	ImGui::Shutdown();
 }

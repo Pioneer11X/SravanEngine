@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <assert.h>
-
+#include "leakDetector.h"
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -116,6 +116,12 @@ void Engine::Update()
 
 }
 
+void Engine::Shutdown()
+{
+	glfwTerminate();
+	delete engine;
+}
+
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
@@ -150,5 +156,5 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 Engine::~Engine()
 {
-	glfwTerminate();
+
 }

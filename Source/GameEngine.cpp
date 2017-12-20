@@ -3,6 +3,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include "leakDetector.h"
+
 
 void GameEngine::Update(float _deltaTime)
 {
@@ -312,4 +314,13 @@ GameEngine::GameEngine()
 
 GameEngine::~GameEngine()
 {
+	delete coreShader;
+	delete lightShader;
+	delete spotLightingShader;
+
+	for (std::vector<Material *>::iterator it = materials.begin(); it != materials.end(); it++) {
+		delete *it;
+	}
+
+	delete camera;
 }

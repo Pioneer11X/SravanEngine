@@ -23,5 +23,7 @@ int main() {
 
 	e.Run();
 
+	e.Shutdown();
+
 	return 0;
 }
